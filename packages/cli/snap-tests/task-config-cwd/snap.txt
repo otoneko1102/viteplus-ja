@@ -1,0 +1,3 @@
+> vite-plus run hello
+Cache not found
+hello from subfolder
