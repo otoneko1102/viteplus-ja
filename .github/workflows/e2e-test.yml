@@ -229,11 +229,22 @@ jobs:
               vite run lint
               vite run test:run
               npx tsc --noEmit
+          - name: dify
+            node-version: 24
+            directory: web
+            command: |
+              vite run type-check:tsgo
+              vite run build
+              vite run test navigation-utils.test.ts real-browser-flicker.test.tsx workflow-parallel-limit.test.tsx
         exclude:
           # frm-stack uses Docker (testcontainers) which doesn't work the same way on Windows
           - os: windows-latest
             project:
               name: frm-stack
+          # dify only runs on Linux for now
+          - os: windows-latest
+            project:
+              name: dify
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -253,7 +264,7 @@ jobs:
           path: tmp/tgz
 
       - name: Install vite-plus from tgz in ${{ matrix.project.name }}
-        working-directory: ${{ runner.temp }}/vite-plus-ecosystem-ci/${{ matrix.project.name }}
+        working-directory: ${{ runner.temp }}/vite-plus-ecosystem-ci/${{ matrix.project.name }}${{ matrix.project.directory && format('/{0}', matrix.project.directory) || '' }}
         run: |
           # install global CLI first
           npm install -g $GITHUB_WORKSPACE/tmp/tgz/vite-plus-cli-0.0.0.tgz
@@ -261,7 +272,7 @@ jobs:
           vite install --no-frozen-lockfile
 
       - name: Run vite-plus commands in ${{ matrix.project.name }}
-        working-directory: ${{ runner.temp }}/vite-plus-ecosystem-ci/${{ matrix.project.name }}
+        working-directory: ${{ runner.temp }}/vite-plus-ecosystem-ci/${{ matrix.project.name }}${{ matrix.project.directory && format('/{0}', matrix.project.directory) || '' }}
         run: ${{ matrix.project.command }}
 
   notify-failure:
