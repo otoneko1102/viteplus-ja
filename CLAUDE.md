@@ -78,6 +78,17 @@ vp run dev                         # runs dev script from package.json
 
 - **Passing to std functions**: `AbsolutePath` implements `AsRef<Path>`, use `.as_path()` when explicit `&Path` is required
 
+## Clippy Rules
+
+All **new** Rust code must follow the custom clippy rules defined in `.clippy.toml` (disallowed types, macros, and methods). Existing code may not fully comply due to historical reasons.
+
+## CLI Output
+
+All user-facing output must go through shared output modules instead of raw print calls.
+
+- **Rust**: Use `vite_shared::output` functions (`info`, `warn`, `error`, `note`, `success`) — never raw `println!`/`eprintln!` (enforced by clippy `disallowed-macros`)
+- **TypeScript**: Use `packages/cli/src/utils/terminal.ts` functions (`infoMsg`, `warnMsg`, `errorMsg`, `noteMsg`, `log`) — never raw `console.log`/`console.error`
+
 ## Git Workflow
 
 - Run `vp fmt` before committing to format code
