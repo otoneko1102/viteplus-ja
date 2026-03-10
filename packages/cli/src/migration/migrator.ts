@@ -22,7 +22,6 @@ import {
   VITE_PLUS_NAME,
   VITE_PLUS_OVERRIDE_PACKAGES,
   VITE_PLUS_VERSION,
-  resolve,
 } from '../utils/constants.js';
 import { editJsonFile, isJsonFile, readJsonFile } from '../utils/json.js';
 import { detectPackageMetadata } from '../utils/package.js';
@@ -146,13 +145,6 @@ export function detectEslintProject(
   return { hasDependency, configFile, legacyConfigFile };
 }
 
-function getInstalledOxlintVersion(): string {
-  const oxlintMainPath = resolve('oxlint');
-  const oxlintPackageRoot = path.dirname(path.dirname(oxlintMainPath));
-  const pkgJson = readJsonFile<{ version: string }>(path.join(oxlintPackageRoot, 'package.json'));
-  return pkgJson.version;
-}
-
 /**
  * Run a `vp dlx @oxlint/migrate` step with graceful error handling.
  * Returns true on success, false on failure (spawn error or non-zero exit).
@@ -201,7 +193,7 @@ export async function migrateEslintToOxlint(
 
   // Steps 1-2: Only run @oxlint/migrate if there's an eslint config at root
   if (eslintConfigFile) {
-    const migratePackage = `@oxlint/migrate@${getInstalledOxlintVersion()}`;
+    const migratePackage = '@oxlint/migrate';
 
     // Step 1: Generate .oxlintrc.json from ESLint config
     spinner.start('Migrating ESLint config to Oxlint...');
