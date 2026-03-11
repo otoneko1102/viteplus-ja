@@ -1,8 +1,8 @@
-# Task Runner Config
+# Run Config
 
-The task runner is configured under the `run` field in your `vite.config.ts`:
+You can configure Vite Task under the `run` field in `vite.config.ts`. Check out [`vp run`](/guide/run) to learn more about running scripts and tasks with Vite+.
 
-```ts [vite.config.ts]
+```ts
 import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
@@ -17,14 +17,14 @@ export default defineConfig({
 });
 ```
 
-## `run.cache` {#run-cache}
+## `run.cache`
 
 - **Type:** `boolean | { scripts?: boolean, tasks?: boolean }`
 - **Default:** `{ scripts: false, tasks: true }`
 
-Global cache settings. Controls whether task results are cached and replayed on subsequent runs.
+Controls whether task results are cached and replayed on subsequent runs.
 
-```ts [vite.config.ts]
+```ts
 export default defineConfig({
   run: {
     cache: {
@@ -35,40 +35,20 @@ export default defineConfig({
 });
 ```
 
-Shorthands: `cache: true` enables both, `cache: false` disables both.
+`cache: true` enables both task and script caching, `cache: false` disables both.
 
-Tasks defined in `vite.config.ts` are cached by default. Plain `package.json` scripts (without a matching task entry) are **not** cached by default. See [When Is Caching Enabled?](./caching#when-is-caching-enabled) for the full resolution order including CLI overrides.
-
-## `run.tasks` {#run-tasks}
+## `run.tasks`
 
 - **Type:** `Record<string, TaskConfig>`
 
-Defines named tasks. Each key is a task name that can be run with `vp run <name>`.
+Defines tasks that can be run with `vp run <task>`.
 
-```ts [vite.config.ts]
-export default defineConfig({
-  run: {
-    tasks: {
-      build: {
-        command: 'vp build',
-        dependsOn: ['lint'],
-      },
-      lint: {
-        command: 'vp lint',
-      },
-    },
-  },
-});
-```
-
-If a task name matches a script in `package.json`, the script is used automatically when `command` is omitted. See [Getting Started](./getting-started#task-definitions) for details.
-
-### `command` {#command}
+### `command`
 
 - **Type:** `string`
 - **Default:** matching `package.json` script
 
-Shell command to run. If omitted, uses the script with the same name from `package.json`.
+The shell command to run.
 
 ```ts
 tasks: {
@@ -78,11 +58,11 @@ tasks: {
 }
 ```
 
-You cannot define a command in both `vite.config.ts` and `package.json` for the same task name — it's one or the other.
+You cannot define a command in both `vite.config.ts` and `package.json` with the same task name.
 
-Commands joined with `&&` are automatically split into independently cached sub-tasks. See [Compound Commands](./running-tasks#compound-commands).
+Commands joined with `&&` are automatically split into independently cached sub-tasks. See [Compound Commands](/guide/run#compound-commands).
 
-### `dependsOn` {#depends-on}
+### `dependsOn`
 
 - **Type:** `string[]`
 - **Default:** `[]`
@@ -104,9 +84,9 @@ Dependencies can reference tasks in other packages using the `package#task` form
 dependsOn: ['@my/core#build', '@my/utils#lint'];
 ```
 
-See [Task Dependencies](./getting-started#task-dependencies) for details on how explicit and topological dependencies interact.
+See [Task Dependencies](/guide/run#task-dependencies) for details on how explicit and topological dependencies interact.
 
-### `cache` {#cache}
+### `cache`
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -122,7 +102,7 @@ tasks: {
 }
 ```
 
-### `envs` {#envs}
+### `envs`
 
 - **Type:** `string[]`
 - **Default:** `[]`
@@ -140,12 +120,12 @@ tasks: {
 
 Wildcard patterns are supported: `VITE_*` matches all variables starting with `VITE_`.
 
-```
+```bash
 $ NODE_ENV=development vp run build    # first run
-$ NODE_ENV=production vp run build     # cache miss: envs changed
+$ NODE_ENV=production vp run build     # cache miss: variable changed
 ```
 
-### `passThroughEnvs` {#pass-through-envs}
+### `passThroughEnvs`
 
 - **Type:** `string[]`
 - **Default:** see below
@@ -168,12 +148,12 @@ A set of common environment variables are automatically passed through to all ta
 - **CI/CD:** `CI`, `VERCEL_*`, `NEXT_*`
 - **Terminal:** `TERM`, `COLORTERM`, `FORCE_COLOR`, `NO_COLOR`
 
-### `inputs` {#inputs}
+### `inputs`
 
 - **Type:** `Array<string | { auto: boolean }>`
 - **Default:** `[{ auto: true }]` (auto-inferred)
 
-Files to track for cache invalidation. By default, the task runner automatically detects which files a command reads. See [Automatic File Tracking](./caching#automatic-file-tracking) for how this works.
+Vite Task automatically detects which files are used by a command (see [Automatic File Tracking](/guide/cache#automatic-file-tracking)). The `inputs` option can be used to explicitly include or exclude certain files.
 
 **Exclude files** from automatic tracking:
 
@@ -181,12 +161,13 @@ Files to track for cache invalidation. By default, the task runner automatically
 tasks: {
   build: {
     command: 'vp build',
+    // Use `{ auto: true }` to use automatic fingerprinting (default).
     inputs: [{ auto: true }, '!**/*.tsbuildinfo', '!dist/**'],
   },
 }
 ```
 
-**Specify explicit files** only (disables automatic tracking):
+**Specify explicit files** only without automatic tracking:
 
 ```ts
 tasks: {
@@ -197,7 +178,7 @@ tasks: {
 }
 ```
 
-**Disable file tracking** entirely (cache only on command/env changes):
+**Disable file tracking** entirely and cache only on command/env changes:
 
 ```ts
 tasks: {
@@ -212,7 +193,7 @@ tasks: {
 Glob patterns are resolved relative to the package directory, not the task's `cwd`.
 :::
 
-### `cwd` {#cwd}
+### `cwd`
 
 - **Type:** `string`
 - **Default:** package root
