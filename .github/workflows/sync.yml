@@ -33,6 +33,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote add ja https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
           git remote add up https://github.com/voidzero-dev/vite-plus
+          git switch -t ja/main
 
       - if: steps.cache.outputs.cache-hit
         run: git remote set-url ja https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
@@ -42,7 +43,7 @@ jobs:
           git fetch ja main sync/subtree sync/upstream
           git fetch up main
         # force-pushされた場合ここで落ちる
-      - run: git push ${{ inputs.push-args }} ja up/main ja/sync/upstream
+      - run: git push ${{ inputs.push-args }} ja up/main:sync/upstream
         # syncを実体化しておく
       - run: git switch sync/subtree
       - run: git switch sync/upstream
@@ -50,7 +51,9 @@ jobs:
       - run: git subtree split --prefix=docs -b sync/subtree
       - run: git push ${{ inputs.push-args }} ja sync/subtree
         # 自動同期を試みる
-      - run: git switch main
+      - run: |
+          git switch main
+          git pull
         # コンフリクトが起きたらここで落ちる
       - run: git merge sync/subtree
       - run: git push
