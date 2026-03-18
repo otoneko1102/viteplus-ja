@@ -27,7 +27,7 @@ jobs:
           restore-keys: sync-cache-
 
       - if: cache.outputs.cache-hit != 'true'
-      - run: |
+        run: |
           git init
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -35,7 +35,7 @@ jobs:
           git remote add up https://github.com/voidzero-dev/vite-plus
 
       - if: cache.outputs.cache-hit
-      - run: git remote set-url ja https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: git remote set-url ja https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
 
         # --filter=blob:none をつける意味はあまり無い
       - run: |
