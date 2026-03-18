@@ -28,19 +28,19 @@ jobs:
           git remote add up https://github.com/voidzero-dev/vite-plus
         # --filter=blob:none をつける意味はあまり無い
       - run: |
-          git fetch ja main sync upstream-full
+          git fetch ja main sync/subtree sync/upstream
           git fetch up main
         # force-pushされた場合ここで落ちる
-      - run: git push ${{ inputs.push-args }} ja up/main ja/upstream-full
+      - run: git push ${{ inputs.push-args }} ja up/main ja/sync/upstream
       - run: git remote remove up
         # syncを実体化しておく
-      - run: git switch sync
-      - run: git switch upstream-full
+      - run: git switch sync/subtree
+      - run: git switch sync/upstream
         # これが結構遅い
-      - run: git subtree split --prefix=docs -b sync
-      - run: git push ${{ inputs.push-args }} ja sync
+      - run: git subtree split --prefix=docs -b sync/subtree
+      - run: git push ${{ inputs.push-args }} ja sync/subtree
         # 自動同期を試みる
       - run: git switch main
         # コンフリクトが起きたらここで落ちる
-      - run: git merge sync
+      - run: git merge sync/subtree
       - run: git push
