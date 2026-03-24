@@ -1,11 +1,5 @@
 on:
   workflow_dispatch:
-    inputs:
-      push-args:
-        type: string
-        required: false
-        description: 'git push args (e.g, -f)'
-        default: ''
   schedule:
     - cron: '39 8 * * *'
 
@@ -45,7 +39,7 @@ jobs:
           git fetch ja main sync/subtree sync/upstream
           git fetch up main
         # force-pushされた場合ここで落ちる
-      - run: git push ${{ inputs.push-args }} ja up/main:sync/upstream
+      - run: git push ja up/main:sync/upstream
       # syncを実体化しておく
       - run: |
           git switch sync/subtree
@@ -54,7 +48,7 @@ jobs:
           git pull
         # これが結構遅い
       - run: git subtree split --prefix=docs -b sync/subtree
-      - run: git push ${{ inputs.push-args }} ja sync/subtree
+      - run: git push ja sync/subtree
       # 自動同期を試みる
       - run: |
           git switch main
